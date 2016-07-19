@@ -18,7 +18,45 @@ var appDir = jetpack.cwd(app.getAppPath());
 console.log('The author of this app is:', appDir.read('package.json', 'json').author);
 
 document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('greet').innerHTML = greet();
-    document.getElementById('platform-info').innerHTML = os.platform();
-    document.getElementById('env-name').innerHTML = env.name;
+    
+	        window.world = new World( 16, 16, 16 );
+			world.createFlatWorld( 6 );
+			
+			// Set up renderer
+			window.render = new Renderer( "renderSurface" );
+			render.setWorld( world, 8 );
+			render.setPerspective( 60, 0.01, 200 );
+			
+			// Create physics simulator
+			window.physics = new Physics();
+			physics.setWorld( world );
+			
+			// Create new local player
+			window.player = new Player();
+			player.setWorld( world );
+			player.setInputCanvas( "renderSurface" );
+            player.setMaterialSelector("materialSelector");
+    
+
+            var loop = function () {
+                var time = new Date().getTime() / 1000.0;
+				
+				// Simulate physics
+				physics.simulate();
+				
+				// Update local player
+				player.update();
+				
+				// Build a chunk
+				render.buildChunks( 1 );
+				
+				// Draw world
+				render.setCamera( player.getEyePos().toArray(), player.angles );
+				render.draw();
+				
+				while ( new Date().getTime() / 1000 - time < 0.016 );
+            }
+			
+			// Render loop			
+			setInterval( loop, 1 );
 });
